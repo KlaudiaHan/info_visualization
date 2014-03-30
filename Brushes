@@ -1,0 +1,148 @@
+void brushOne(float brush_x, float brush_y) {
+  float s = map(second(), 0, 60, 0, 255);  // Values from 0 - 59
+  float m = map(minute(), 0, 60, 0, 255);  // Values from 0 - 59
+  float h = map(hour(), 0, 24, 0, 255); 
+
+  color timeColor = color (h, m, s, 200);
+
+  pushMatrix();
+  translate(brush_x, brush_y);
+  rotate(random(PI/random(3)));
+
+  stroke(timeColor);
+
+  strokeWeight(random(3));
+  line(0, 0, random(10), 0);
+  strokeWeight(random(3));  // Thicker
+  line(0, 5, random(10), 5);
+  strokeWeight(random(3));  // Beastly
+  line(0, 10, random(10), 10);
+  popMatrix();
+}
+
+void brushThree(float brush_x, float brush_y) {
+  smooth();
+  float s = map(second(), 0, 59, 0, 200);  // Values from 0 - 59
+  float m = map(minute(), 0, 59, 0, 200);  // Values from 0 - 59
+  float h = map(hour(), 0, 24, 0, 200); 
+
+  color timeColor = color (h, m, s, 220); 
+
+  pushMatrix();
+  translate(brush_x, brush_y);
+  rotate(random(PI/random(3)));
+
+
+  //blendMode(DIFFERENCE);
+  noFill();
+  stroke(timeColor);
+  strokeWeight(random(4));
+  beginShape();
+  curveVertex(5, 5); // the first control point
+  curveVertex(5, 5); // is also the start point of curve
+  curveVertex(5+random(3), 10+random(3));
+  curveVertex(15+random(3), 10+random(3));
+  curveVertex(15+random(3), 15+random(3));
+  curveVertex(10+random(3), 15+random(3)); // the last point of curve
+  curveVertex(5+random(3), 10+random(3));
+  curveVertex(5, 5);
+  curveVertex(5, 5); // is also the last control point
+
+  endShape();
+  popMatrix();
+}
+
+void BrushTwo(PImage pImage){
+  PImage rImage;
+  image(pImage,0,0);
+}
+
+void BrushFour(){
+  Blob b;
+  Blob bT;
+  noFill();
+  
+  pushMatrix();
+  beginShape();
+  for (int n=0 ; n<theBlobDetection.getBlobNb()-1; n++)
+  {
+    b=theBlobDetection.getBlob(n);
+    bT=theBlobDetection.getBlob(n+1);
+    if (b!=null)
+    {
+        float blb_x = b.xMin*width;
+        float blb_y = b.yMin*height;
+        float blbT_x = bT.xMin*width;
+        float blbT_y = bT.yMin*height;
+        stroke(n*10);
+        //line(blb_x,blb_y,blbT_x,blbT_y);
+        if(n==0){
+          curveVertex(blb_x, blb_y);
+          //println(blb_x+","+ blb_y);
+        }
+        curveVertex(blb_x, blb_y);
+        if(n==theBlobDetection.getBlobNb()-1){
+        curveVertex(blb_x, blb_y);
+        }
+    }
+  }
+  endShape();
+  popMatrix();
+}
+
+void BrushFive(){
+  Blob b;
+  Blob bT;
+  noFill();
+
+  for (int n=0 ; n<theBlobDetection.getBlobNb(); n++)
+  {
+    b=theBlobDetection.getBlob(n);
+    
+    for(int m=0 ; m<theBlobDetection.getBlobNb(); m++){
+      bT=theBlobDetection.getBlob(m);
+      if (b!=null&&m!=n)
+      {
+          float blb_x = b.xMin*width;
+          float blb_y = b.yMin*height;
+          float blbT_x = bT.xMin*width;
+          float blbT_y = bT.yMin*height;
+          stroke(n*10);
+          line(blb_x,blb_y,blbT_x,blbT_y);
+      }
+    }
+    
+  }
+
+}
+
+void BrushSix(){
+  Blob b;
+  Blob bT;
+  noFill();
+  int rotation =1;
+  float s = map(second(), 0, 60, 0, 200);  // Values from 0 - 59
+  float m = map(minute(), 0, 60, 0, 100);  // Values from 0 - 59
+  float h = map(hour(), 0, 24, 0, 200); 
+
+  //color timeColor = color (h, m, s, 200);
+  
+  for (int n=0 ; n<theBlobDetection.getBlobNb()-1; n++)
+  {
+    b=theBlobDetection.getBlob(n);
+    bT=theBlobDetection.getBlob(n+1);
+   
+          float blb_x = b.xMin*width;
+          float blb_y = b.yMin*height;
+          float blbT_x = bT.xMin*width;
+          float blbT_y = bT.yMin*height;
+          rotation = int(random(20)*4+20);
+          float ylocation = random(height);
+          stroke(color(h+random(rotation),m+random(rotation),s+random(rotation)));
+          strokeWeight(random(4));
+          line(blb_x,ylocation,blb_x+random(30),ylocation+random(10));
+
+  }
+
+}
+
