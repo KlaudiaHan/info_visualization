@@ -1,0 +1,161 @@
+import processing.video.*;
+import blobDetection.*;
+
+Capture video;
+BlobDetection theBlobDetection;
+PImage img;
+PImage prevFrame;
+PImage blobImage;
+PImage brushTwoImage;
+boolean newFrame=false;
+float threshold = 50;
+
+Boolean imageProcessed = false;
+//ArrayList<Ball> dyanmicPoints;
+
+void setup()
+{
+  // Size of applet
+  size(800, 600, JAVA2D);
+  smooth();
+  background(loadImage("bg2.jpg"));
+  video = new Capture(this, 800, 600, 15);
+  video.start();
+  
+  prevFrame = createImage(video.width,video.height,RGB);
+  blobImage = new PImage(video.width,video.height,RGB); 
+  brushTwoImage = new PImage(video.width,video.height,RGB); 
+  theBlobDetection = new BlobDetection(blobImage.width, blobImage.height);
+  theBlobDetection.setPosDiscrimination(true);
+  theBlobDetection.setThreshold(0.2f);
+  
+  
+}
+
+
+void draw() {
+ 
+  // Capture video
+  if (video.available()) {
+    // Save previous frame for motion detection!!
+    prevFrame.copy(video,0,0,video.width,video.height,0,0,video.width,video.height); // Before we read the new frame, we always save the previous frame for comparison!
+    prevFrame.updatePixels();
+    video.read();
+  }
+  sbustractVideo();
+  fastblur(blobImage, 2);
+  if(imageProcessed){
+    theBlobDetection.computeBlobs(blobImage.pixels);
+    drawBlobsAndEdges(true, false);
+  }
+  
+}
+
+int changePix = 0;
+void sbustractVideo(){
+  video.loadPixels();
+  prevFrame.loadPixels();
+  brushTwoImage.loadPixels();
+  changePix = 0;
+// Begin loop to walk through every pixel
+
+  float s = map(second(), 0, 60, 0, 100);  // Values from 0 - 59
+  float m = map(minute(), 0, 60, 0, 100);  // Values from 0 - 59
+  float h = map(hour(), 0, 24, 0, 100); 
+
+  color timeColor = color (h, m, s, 5);
+  for (int x = 0; x < video.width; x ++ ) {
+    for (int y = 0; y < video.height; y ++ ) {
+      
+      int loc = x + y*video.width;            // Step 1, what is the 1D pixel location
+      color current = video.pixels[loc];      // Step 2, what is the current color
+      color previous = prevFrame.pixels[loc]; // Step 3, what is the previous color
+      
+      // Step 4, compare colors (previous vs. current)
+      float r1 = red(current); float g1 = green(current); float b1 = blue(current);
+      float r2 = red(previous); float g2 = green(previous); float b2 = blue(previous);
+      float diff = dist(r1,g1,b1,r2,g2,b2);
+      
+      // Step 5, How different are the colors?
+      // If the color at that pixel has changed, then there is motion at that pixel.
+      if (diff > threshold) { 
+        // If motion, display black
+        blobImage.pixels[loc] = color(0);
+        brushTwoImage.pixels[loc] = timeColor;
+        changePix++;
+      } else {
+        // If not, display white
+        blobImage.pixels[loc] = 0x00FFFFFF;
+        brushTwoImage.pixels[loc] =0 ;
+      }
+    }
+  }
+  blobImage.format = ARGB;
+  blobImage.updatePixels();
+  brushTwoImage.format = ARGB;
+  brushTwoImage.updatePixels();
+  imageProcessed=true;
+  //println(changePix);
+  if(changePix<43000){
+          BrushTwo(brushTwoImage);
+        }
+}
+
+
+
+void drawBlobsAndEdges(boolean drawBlobs, boolean drawEdges)
+{
+
+  //noFill();
+  Blob b;
+  EdgeVertex eA, eB;
+  for (int n=0 ; n<theBlobDetection.getBlobNb() ; n++)
+  {
+    b=theBlobDetection.getBlob(n);
+    if (b!=null)
+    {
+      
+      // Edges
+      if (drawEdges)
+      {
+        //blendMode(SCREEN);
+        strokeWeight(0.1);
+        stroke(70,100,34);
+        for (int m=0;m<b.getEdgeNb();m++)
+        {
+          eA = b.getEdgeVertexA(m);
+          eB = b.getEdgeVertexB(m);
+          if (eA !=null && eB !=null) {
+            float blb_x = b.xMin*width+(b.w*width - b.xMin*width);
+            float blb_y = b.yMin*height+(b.h*height - b.yMin*height);
+            //brushOne(blb_x, blb_y);
+          }
+          //line(eA.x*width, eA.y*height, eB.x*width, eB.y*height);
+        }
+      }
+      
+      // Blobs
+      if (drawBlobs)
+      {
+        //strokeWeight(1);
+        //stroke(255,0,0);
+        //rect(b.xMin*width,b.yMin*height,b.w*width,b.h*height);
+        //if(){    
+        float blb_x = b.xMin*width;
+        float blb_y = b.yMin*height;
+        
+        
+        //if(changePix<42000){
+          //BrushTwo(brushTwoImage);
+        //}
+        BrushFour();
+        //BrushFive();
+        //brushThree(blb_x, blb_y);
+        //brushOne(blb_x, blb_y);
+        //image(brushTwoImage,0,0);
+        //}
+      
+      }
+    }
+  }
+}
